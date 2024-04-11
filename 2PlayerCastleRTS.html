@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html> 
+ <head>
+    <title>Mideval Maham</title> 
+	<script src="p5.js"></script> 
+</head>
+ <body>
+	<script>
+		var timeAction;
+		function setup(){
+			createCanvas(400, 400);
+			timeAction = millis();
+		}
+		/*
+		Wellcome to my 2 player midieval real time stratigy game grab a freind or a family member and enjoy.
+
+		Player 1 uses
+		w a s d keys
+		spacebar to select
+
+		Player 2 uses
+		mouse
+		*/
+
+		/*
+		In all cases if variable are in pair and if one is not numbered or numbered 1 and the other is numbered 2 these variables are for 
+		player 1 who is in the upper left hand corner and player 2 who is in the lower right hand corner.  
+
+		P1 = Player 1
+		P2 = Player 2
+		C = charge 
+		H usually = health or house
+		*/
+
+		//general no specific to any player
+
+		//the x and y of the castle in the top left conner
+		var origanalX = -15;
+		var origanalY = -32;
+
+		//the hight and width of the houses W = width H = hight 
+		var houseW = 21;
+		var houseH = 24;
+
+		//dimentions of small boxes on top of castle
+		var boxHW = 5;
+
+		//the houses and selecting boxs are this far appart
+		var over = 44;
+		var down = 50;
+
+		/*Directs how long it takes for you to get resources from you workers in milliseconds (1 second = 1000 milliseconds) so if you 
+		lower this number they will work faster and if you raise it they will go slower. */
+		var collectionSpeed = 1000;
+
+		//how fast the base attacks (similar to collection speed).
+		var attackSpeed = 1000;
+
+		//shows text for the types of house you can build
+		var houseType = ["Worker", "Builder", "Soldiar", "Archerer", "Knight", "Catapult"];
+
+		//shows text for what your troops are doing
+		var troopAction = ["Retreat", "Hold", "Charge"];
+
+		//the troops are this far apart
+		var tOver = 35;
+		var tUp = 15;
+
+		//Hold text desplayed in the menues for both playlers 
+		var workerMenue = ["Add", "Add", "", "Wood", "Gold", "Sell"];
+		var workerMenuel3 = ["Worker", "Worker", "" , "", "", "Half"];
+		var workerMenuel2 = ["Wood", "Gold", "" , "Workers", "Workers", "For"];
+		var workerMenuel4 = ["", "", "", "", "", "Price"];
+
+		var soldierMenue = ["Buy", "Charge", "", "" , "Retreat", "Sell"];
+		var soldierMenuel2 = ["Soldiar", "All", "", "" , "All", "For"];
+		var soldierMenuel3 = ["W 25", "Troops", "", "", "Troops", "Half"];
+		var soldierMenuel4 = ["G 100", "", "", "", "", "Price"];
+
+		var archerMenue = ["Buy", "Charge", "", "" , "Retreat", "Sell"];
+		var archerMenuel2 = ["Archer", "All", "", "" , "All", "For"];
+		var archerMenuel3 = ["W 100", "Troops", "", "" , "Troops", "Half"];
+		var archerMenuel4 = ["G 25", "", "", "", "", "Price"];
+
+		var knightMenue = ["Buy", "Charge", "", "" , "Retreat", "Sell"];
+		var knightMenuel2 = ["Knight", "All", "", "" , "All", "For"];
+		var knightMenuel3 = ["W 100", "Troops", "", "" , "Troops", "Half"];
+		var knightMenuel4 = ["G 150", "", "", "", "", "Price"];
+
+		var catapultMenue = ["Buy", "Charge", "", "" , "Retreat", "Sell"];
+		var catapultMenuel2 = ["Catapult", "All", "", "" , "All", "For"];
+		var catapultMenuel3 = ["W 225", "Troops", "", "" , "Troops", "Half"];
+		var catapultMenuel4 = ["G 150", "", "", "", "", "Price"];
+
+
+		// Player 1 variables
+		
+		var P1builderMenue = ["Buy", "Upgrade", "", "" , "", "Sell"];
+		var P1builderMenuel2 = ["Wall", "Defence", "", "", "", "For"];
+		var P1builderMenuel3 = ["W 700", "W 250", "", "", "", "Half"];
+		var P1builderMenuel4 = ["G 300", "G 300", "", "", "", "Price"];
+
+		//this holds the number of the blue box that moves with key movement 
+		var boxNum1 = 0;
+
+		//hold values of the amount of resouces for P1
+		var P1wood = 500;
+		var P1gold = 500;
+
+		//holds value of the health of the P1's base
+		var P1health = 2000;
+
+		//holds the amount of workers each player has to collect each resources
+		var P1wWorkers = 0;
+		var P1gWorkers = 0;
+
+		/*certain commands should only work every certain amount of time these time variables hold the miliseconds at which the last 
+		accurance of that command executed*/
+		var time1 = 0;
+		var time2 = 0;
+		var time3 = [];
+		var time4 = [];
+		var time5 = [];
+		var time6 = [];
+
+		//keeps track of what house you have selected
+		var houseSelect1 = 0;
+
+		//lets you select which type of house you want
+		var houseTypeNum1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+		/*when you select a house there are multiple menues that give different options this holds which menue they are on.*/
+		var menueNum1 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+		//holds whether the house is built or not
+		var P1house = [false, false, false, false, false, false, false, false, false, false, false, false];
+
+		//hold whether wall is built or not
+		var P1wall = false;
+		var P1upgradeD = 0;
+
+		//hold which soldier you should hire next
+		var P1soldierNum = 0;
+		//hold whether soldiars are hired or not
+		var P1soldier = [];
+		//hold soldier health
+		var P1soldierH = [];
+		/*If this variable is at 1 then the soldiers will be moving froward, if at -1 backwords and if at 0 stands still*/
+		var P1soldierC = [];
+		//Hold how far each soldier has moved
+		var soldierMove1 = [];
+		//when true soldier swings sword
+		var sUseSword1 = [];
+		//tells him how far to swing it
+		var sPeramiters1 = [];
+		//number of soldier houses
+		var numSoldierH1 = 0;
+
+		//Hold which archer to hire next
+		var P1archerNum = 0;
+		//hold weither the archer is hired or not
+		var P1archer = [];
+		//hold the archer's health
+		var P1archerH = [];
+		/*If this variable is at 1 then the archer will be moving froward, if at -1 backwords and if at 0 stands still*/
+		var P1archerC = [];
+		//Hold how far the archer has moved
+		var archerMove1 = [];
+		//number of archer houses
+		var numArcherH1 = 0;
+
+		//Hold which knight to hire next
+		var P1knightNum = 0;
+		//hold weither the knight is hired or not
+		var P1knight = [];
+		//hold the knight's health
+		var P1knightH = [];
+		/*If this variable is at 1 then the knight will be moving froward, if at -1 backwords and if at 0 stands still*/
+		var P1knightC = [];
+		//Hold how far the knight has moved
+		var knightMove1 = [];
+		//number of knight houses
+		var numKnightH1 = 0;
+		//When true knight swings sword
+		var kUseSword1 =[];
+		//Tells knight how far to swing sword
+		var kPeramiters1 = [];
+
+		//Hold which catapult to hire next
+		var P1catapultNum = 0;
+		//hold weither the catapult is hired or not
+		var P1catapult = [];
+		//hold the catapults's health
+		var P1catapultH = [];
+		/*If this variable is at 1 then the catapult will be moving froward, if at -1 backwords and if at 0 stands still*/
+		var P1catapultC = [];
+		//Hold how far the catapult has moved
+		var catapultMove1 = [];
+		//number of catapult houses
+		var numCatapultH1 = 0;
+
+		//Tells all troops weither to charge, hold or retreat
+		var P1chargeC = 0;
+
+		//gives individual troops slightly diffent speeds so that they are not synchronized
+		var Sspeed1 = [];
+		var Aspeed1 = [];
+		var Kspeed1 = [];
+		var Cspeed1 = [];
+		for(var n = 0; n <=99; n++){
+			Sspeed1.push((Math.floor(Math.random()*1)+3)/10);
+			Aspeed1.push((Math.floor(Math.random()*1)+3)/10);
+			Kspeed1.push((Math.floor(Math.random()*1)+3)/10);
+			Cspeed1.push((Math.floor(Math.random()*1)+3)/10);
+		}
+
+
+
+		//Just like Player 1 but this is Player 2
+		var P2builderMenue = ["Buy", "Upgrade", "", "" , "", "Sell"];
+		var P2builderMenuel2 = ["Wall", "Defence", "", "", "", "For"];
+		var P2builderMenuel3 = ["W 700", "W 250", "", "", "", "Half"];
+		var P2builderMenuel4 = ["G 300", "G 300", "", "", "", "Price"];
+		
+		var boxNum2 = 0;
+
+		var P2wood = 500;
+		var P2gold = 500;
+		var P2health = 2000;
+
+		var P2wWorkers = 0;
+		var P2gWorkers = 0;
+
+		var time7 = 0;
+		var time8 = 0;
+		var time9 = [];
+		var time10 = [];
+		var time11 = [];
+		var time12 = [];
+		var time13 = 0;
+
+		var houseSelect2 = 0;
+
+		var houseTypeNum2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+		var menueNum2 = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+		var P2house = [false, false, false, false, false, false, false, false, false, false, false, false];
+
+		var P2wall = false;
+		var P2upgradeD = 0;
+
+		var P2soldierNum = 0;
+		var P2soldier = [];
+		var P2soldierH = [];
+		var P2soldierC = [];
+		var soldierMove2 = [];
+		var sUseSword2 = [];
+		var sPeramiters2 = [];
+		var numSoldierH2 = 0;
+
+		var P2archerNum = 0;
+		var P2archer = [];
+		var P2archerH = [];
+		var P2archerC = [];
+		var archerMove2 = [];
+		var numArcherH2 = 0;
+
+		var P2knightNum = 0;
+		var P2knight = [];
+		var P2knightH = [];
+		var P2knightC = [];
+		var knightMove2 = [];
+		var numKnightH2 = 0;
+		var kUseSword2 = [];
+		var kPeramiters2 = [];
+
+		var P2catapultNum = 0;
+		var P2catapult = [];
+		var P2catapultH = [];
+		var P2catapultC = [];
+		var catapultMove2 = [];
+		var numCatapultH2 = 0;
+
+		var P2chargeC = 0;
+		var MouseX = 0;
+		var MouseY = 0;
+
+		var Sspeed2 = [];
+		var Aspeed2 = [];
+		var Kspeed2 = [];
+		var Cspeed2 = [];
+		for(var n = 0; n <=99; n++){
+			Sspeed2.push((Math.floor(Math.random()*1)+3)/10);
+			Aspeed2.push((Math.floor(Math.random()*1)+3)/10);
+			Kspeed2.push((Math.floor(Math.random()*1)+3)/10);
+			Cspeed2.push((Math.floor(Math.random()*1)+3)/10);
+		}
+
+		//Holds the function for the castle in the top left corner and bottom left
+		var drawMhouse =  function(playerX, playerY, r, g, b){
+			//flag
+			stroke(110, 73, 16);
+			strokeWeight(1);
+			line(playerX-origanalX+7, playerY-origanalY-15, playerX-origanalX+6, playerY-origanalY+9);
+			fill(r, g, b);
+			rect(playerX-origanalX+7, playerY-origanalY-15, 9, 6);
+			fill(143, 143, 143);
+			noStroke();
+			
+			//building
+			rect(playerX-origanalX, playerY-origanalY, houseW, houseH);
+			rect(playerX-origanalX, playerY-origanalY-5, boxHW, boxHW);
+			rect(playerX-origanalX+8, playerY-origanalY-5, boxHW, boxHW);
+			rect(playerX-origanalX+16, playerY-origanalY-5, boxHW, boxHW);
+			
+			//door
+			fill(92, 65, 12);
+			rect(playerX-origanalX+6, playerY-origanalY+9, boxHW*1.5, boxHW*3);
+			
+			//knob
+			fill(10, 10, 10);
+			ellipse(playerX-origanalX+12, playerY-origanalY+17, 2, 2);
+			
+		};
+
+		//Holds the basic house before it has been given a house type
+		var drawHouse = function(playerX, playerY, X, Y, yes) {
+			//building
+			fill(138, 76, 14);
+			rect(playerX-origanalX+over*X, playerY-origanalY+down*Y+2, houseW, houseH-2);
+			//door
+			fill(54, 38, 17);
+			rect(playerX-origanalX+over*X+8, playerY-origanalY+down*Y+14, 7, 10);
+			//roof    
+			fill(138, 76, 14);
+			triangle(playerX-origanalX+over*X-3, playerY-origanalY+down*Y+2, playerX-origanalX+over*X+houseW/2, playerY-origanalY+down*Y-6, 
+				playerX-origanalX+over*X+houseW+3, playerY-origanalY+down*Y+2); 
+		};
+
+		//Holds the blue box that moves with the conrols of the players
+		var drawSBox = function(playerX, playerY, X, Y) {
+			//blue box
+			strokeWeight(3);
+			stroke(0, 0, 255);
+			fill(29, 145, 46);
+			rect(playerX-origanalX-5+over*X, playerY-origanalY-9+down*Y, 30, 36);
+			noStroke();
+		};
+
+		/*Holds the first type of house, a worker house and adds to the basic house a pick ax and ax.  W = worker */
+		var drawWhouse = function(playerX, playerY, X, Y) {
+			fill(0, 0, 0);
+			noStroke();
+			//ax blade
+			rect(playerX-origanalX-7+over*X, playerY-origanalY+20+down*Y, 4, 4);
+			stroke(0, 0, 0);
+			strokeWeight(1);
+			//ax handle
+			line(playerX-origanalX+over*X, playerY-origanalY+13+down*Y, playerX-origanalX-3+over*X, playerY-origanalY+20+down*Y);
+			//pick ax handle
+			line(playerX-origanalX+22+over*X, playerY-origanalY+13+down*Y, playerX-origanalX+28+over*X, playerY-origanalY+21+down*Y);
+			noFill();
+			//pick ax blade
+			arc(playerX-origanalX+24+over*X, playerY-origanalY+11+down*Y, 16, -25, PI*5/24, PI*8/15);
+			noStroke();
+		};
+
+		//Adds the anvil and hammer to the base house. B = builder
+		var drawBhouse = function(playerX, playerY, X, Y) {
+			fill(74, 65, 74);
+			strokeWeight(1);
+			stroke(0, 0, 0);
+			//hammer handle
+			line(playerX-origanalX-1+over*X, playerY-origanalY+14+down*Y, playerX-origanalX-1+over*X, playerY-origanalY+21+down*Y);
+			stroke(74, 65, 74);
+			//hammer end
+			rect(playerX-origanalX-3+over*X, playerY-origanalY+20+down*Y, 4, 3);
+			//anvile
+			rect(playerX-origanalX+22+over*X, playerY-origanalY+16+down*Y, 4, 3);
+			arc(playerX-origanalX+26+over*X, playerY-origanalY+16+down*Y, 14, 7, 0, PI*9/15);
+			rect(playerX-origanalX+23+over*X, playerY-origanalY+22+down*Y, 5, 2);
+			rect(playerX-origanalX+24+over*X, playerY-origanalY+19+down*Y, 3, 2);
+			noStroke();
+		};
+
+		//Adds the helmet and sword to the base house.  S = soldiar
+		var drawShouse = function(playerX, playerY, X, Y){
+			fill(99, 92, 99);
+			stroke(99, 92, 99);
+			strokeWeight(1);
+			//helmet
+			arc(playerX-origanalX+23+over*X, playerY-origanalY+20+down*Y, 8, 7, PI, PI*2);
+			rect(playerX-origanalX+19+over*X, playerY-origanalY+20+down*Y, 1, 3);
+			rect(playerX-origanalX+26+over*X, playerY-origanalY+20+down*Y, 1, 3);
+			rect(playerX-origanalX+23+over*X, playerY-origanalY+19+down*Y, 0, 3);
+			fill(0, 0, 0);
+			stroke(0, 0, 0);
+			strokeWeight(2);
+			stroke(78, 94, 86);
+			//sword
+			line(playerX-origanalX-1+over*X, playerY-origanalY+16+down*Y, playerX-origanalX-7+over*X, playerY-origanalY+23+down*Y);
+			stroke(0, 0, 0);
+			line(playerX-origanalX+3+over*X, playerY-origanalY+18+down*Y, playerX-origanalX-3+over*X, playerY-origanalY+12+down*Y);
+			line(playerX-origanalX+3+over*X, playerY-origanalY+12+down*Y, playerX-origanalX-0+over*X, playerY-origanalY+16+down*Y);
+			
+			noStroke();
+		};
+
+		//Adds the bow and quiver to the base house.  A = archer
+		var drawAhouse = function(playerX, playerY, X, Y, r, g, b){ 
+			//bow
+			noFill();
+			stroke(0, 0, 0);
+			strokeWeight(1);
+			arc(playerX-origanalX+23+over*X, playerY-origanalY+18+down*Y, 11, 11, PI+PI/4, 2*PI+PI*7/15);
+			line(playerX-origanalX+20+over*X, playerY-origanalY+13+down*Y, playerX-origanalX+25+over*X, playerY-origanalY+23+down*Y);
+			//quiver
+			fill(r, g, b);
+			stroke(r, g, b);
+			arc(playerX-origanalX-3+over*X, playerY-origanalY+18+down*Y, 3, 11, 0, PI);
+			rect(playerX-origanalX-5+over*X, playerY-origanalY+14+down*Y, 3, 4);
+			//arrow
+			stroke(0, 0, 0);
+			line(playerX-origanalX-1+over*X, playerY-origanalY+9+down*Y, playerX-origanalX-3+over*X, playerY-origanalY+15+down*Y);
+			line(playerX-origanalX-6+over*X, playerY-origanalY+9+down*Y, playerX-origanalX-4+over*X, playerY-origanalY+14+down*Y);
+			noStroke();
+		};
+
+		//Adds the horse to the base house.  K = knight
+		var drawKhouse = function(playerX, playerY, X, Y) { 
+			fill(87, 37, 8);
+			noStroke();
+			//pole horse is tied to
+			rect(playerX-origanalX+22+over*X, playerY-origanalY+15+down*Y, 2, 9); 
+			//horse
+			//legs
+			rect(playerX-origanalX+35+over*X, playerY-origanalY+15+down*Y, 2, 9);
+			rect(playerX-origanalX+41+over*X, playerY-origanalY+15+down*Y, 2, 9);
+			//head
+			arc(playerX-origanalX+29+over*X, playerY-origanalY+9+down*Y, 4, 11, 0, PI+PI*2/9);
+			ellipse(playerX-origanalX+30+over*X, playerY-origanalY+7+down*Y, 5, 5);
+			//body
+			ellipse(playerX-origanalX+39+over*X, playerY-origanalY+14+down*Y, 15, 6);
+			strokeWeight(1);
+			stroke(0, 0, 0);
+			//rope tying rope to pole
+			line(playerX-origanalX+29+over*X, playerY-origanalY+13+down*Y, playerX-origanalX+23+over*X, playerY-origanalY+16+down*Y);
+			stroke(87, 37, 8);
+			//tale
+			line(playerX-origanalX+45+over*X, playerY-origanalY+14+down*Y, playerX-origanalX+50+over*X, playerY-origanalY+23+down*Y);
+			line(playerX-origanalX+45+over*X, playerY-origanalY+14+down*Y, playerX-origanalX+46+over*X, playerY-origanalY+23+down*Y);
+			line(playerX-origanalX+45+over*X, playerY-origanalY+14+down*Y, playerX-origanalX+48+over*X, playerY-origanalY+23+down*Y);
+			strokeWeight(3);
+			line(playerX-origanalX+35+over*X, playerY-origanalY+12+down*Y, playerX-origanalX+30+over*X, playerY-origanalY+7+down*Y);
+			noStroke();
+		};
+
+		//Add the cataputl to the base house. C = catapult
+		var drawChouse = function(playerX, playerY, X, Y) {
+			fill(115, 93, 93);
+			//rocks
+			ellipse(playerX-origanalX+24+over*X, playerY-origanalY+20+down*Y, 5, 5);
+			ellipse(playerX-origanalX+30+over*X, playerY-origanalY+20+down*Y, 5, 5);
+			ellipse(playerX-origanalX+27+over*X, playerY-origanalY+15+down*Y, 5, 5);
+			fill(82, 44, 6);
+			//catapult
+			//cup
+			arc(playerX-origanalX+4+over*X, playerY-origanalY+8+down*Y, 8, 13, 0, PI);
+			//base
+			rect(playerX-origanalX-12+over*X, playerY-origanalY+19+down*Y, 19, 3);
+			//wheels
+			ellipse(playerX-origanalX+-12+over*X, playerY-origanalY+25+down*Y, 7, 7);
+			ellipse(playerX-origanalX+8+over*X, playerY-origanalY+25+down*Y, 7, 7);
+			strokeWeight(3);
+			stroke(82, 44, 6);
+			//diagnal beam
+			line(playerX-origanalX-7+over*X, playerY-origanalY+20+down*Y, playerX-origanalX+4+over*X, playerY-origanalY+12+down*Y);
+			noStroke();
+			fill(0, 0, 0);
+			//axils in middle of wheel
+			ellipse(playerX-origanalX-12+over*X, playerY-origanalY+25+down*Y, 3, 3);
+			ellipse(playerX-origanalX+8+over*X, playerY-origanalY+25+down*Y, 3, 3);
+		};
+		
+		//visually draws base defence as archers
+		drawBaseDefence = function(X, Y, archerNum, dOver, r, g, b){
+			//brown
+			stroke(87, 63, 3);
+			noFill();
+			strokeWeight(1);
+			//bow
+			arc(X+14+archerNum*dOver, Y+21, 15, 15, -PI*2/5, PI*3/5);
+			//black
+			stroke(0, 0, 0);
+			//arrows
+			line(X+17+archerNum*dOver, Y+15, X+12+archerNum*dOver, Y+29);
+			line(X+25+archerNum*dOver, Y+25, X+15+archerNum*dOver, Y+22);
+			//bow string
+			line(X-19+archerNum*dOver, Y+5, X-3+archerNum*dOver, Y+13);
+			//arrow in bow
+			line(X-16+archerNum*dOver, Y+1, X-10+archerNum*dOver, Y+8);
+			//black
+			fill(0, 0, 0);
+			//point of arrow
+			triangle(X+24+archerNum*dOver, Y+26, X+25+archerNum*dOver, Y+24, X+27+archerNum*dOver, 
+				Y+26);
+			//player's color
+			stroke(r, g, b);
+			strokeWeight(4);
+			//quiver
+			line(X-10+archerNum*dOver, Y+9, X+6+archerNum*dOver, Y+21);
+			noStroke();
+			//head
+			fill(168, 135, 45);
+			ellipse(X+archerNum*dOver, Y, 11, 12);
+			//eyes
+			fill(3, 3, 3);
+			ellipse(X-3+archerNum*dOver, Y-1, 1, 1);
+			ellipse(X+3+archerNum*dOver, Y-1, 1, 1);
+			//smile
+			arc(X+archerNum*dOver, Y+2, 4, 3, 0, PI);
+			//brown
+			stroke(122, 101, 18);
+			strokeWeight(2);
+			//hair
+			line(X-7+archerNum*dOver, Y-3, X+archerNum*dOver, Y-6);
+			line(X+archerNum*dOver, Y-6, X+7+archerNum*dOver, Y-3);
+			noStroke();
+			//dark green
+			fill(35, 102, 22);
+			//body
+			ellipse(X+archerNum*dOver, Y+14, 7, 19);
+			//right shoulder
+			ellipse(X-5+archerNum*dOver, Y+11, 5, 5);
+			//right hand
+			ellipse(X-13+archerNum*dOver, Y+21, 4, 4);
+			//left shoulder
+			ellipse(X+5+archerNum*dOver, Y+11, 5, 5);
+			//left hand
+			ellipse(X+13+archerNum*dOver, Y+21, 4, 4);
+			//right foot
+			ellipse(X+9+archerNum*dOver, Y+33, 7, 4);
+			//left foot
+			ellipse(X-9+archerNum*dOver, Y+33, 7, 4);
+			//hat
+			triangle(X-4+archerNum*dOver, Y-8, X+archerNum*dOver, Y-12, X+4+archerNum*dOver, Y-8);
+			rect(X-8+archerNum*dOver, Y-8, 16, 3);
+			//dark green
+			stroke(35, 102, 22);
+			strokeWeight(3);
+			//left arm
+			line(X-7+archerNum*dOver, Y+13, X-12+archerNum*dOver, Y+21);
+			//right arm
+			line(X+7+archerNum*dOver, Y+14, X+13+archerNum*dOver, Y+21);
+			//left leg
+			line(X-2+archerNum*dOver, Y+22, X-8+archerNum*dOver, Y+33);
+			//right leg
+			line(X+2+archerNum*dOver, Y+22, X+8+archerNum*dOver, Y+33);
+			noStroke();
+		}
+
+		//This is what the players start with before the build a wall.
+		var drawFence = function(Y) {
+			//left half of fence
+			for(var i = 0; i <= 11; i++){
+				fill(87, 81, 14);
+				rect(16*i, Y, 4, 23);
+				rect(16*i-17, Y+3, 17, 4);
+				rect(16*i-17, Y+12, 17, 4);
+			}for(var i = 0; i <= 11; i++){ //right half of fence
+				rect(16*i+215, Y, 4, 23);
+				rect(16*i+215, Y+3, 17, 4);
+				rect(16*i+215, Y+12, 17, 4);
+			}
+			//gate
+			fill(41, 37, 37);
+			//hinges
+			rect(180, Y+2, 2, 4);
+			rect(180, Y+15, 2, 4);
+			fill(87, 81, 14);
+			//horizantil beams
+			rect(184, Y+3, 26, 3);
+			rect(184, Y+15, 26, 3);
+			rect(211, Y, 3, 22);
+			stroke(87, 81, 14);
+			strokeWeight(3);
+			//diagnial beams
+			line(183, Y+4, 210, Y+16);
+			line(183, Y+16, 210, Y+4);
+			noStroke();
+		};
+
+		//Preatty self explanitory except this is when you upgrade the wall before it is more of a fense.
+		var drawWall = function(Y) {
+			fill(87, 81, 14);
+			//left side of wall
+			for(var i = 0; i <= 19; i++){
+				//beams
+				rect(9*i, Y, 8, 27);
+				//point at top
+				triangle(9*i, Y, 9*i+4, Y-13, 9*i+8, Y);
+				stroke(0, 0, 0);
+				strokeWeight(1);
+				//rope holding wall together
+				line(9*i, Y+6, 9*i+8, Y+22);
+				line(9*i+8, Y+6, 9*i, Y+22);
+				noStroke();
+			}for(var i = 0; i <= 19; i++){ //right side of wall like left side
+				rect(9*i+219, Y, 8, 27); 
+				triangle(9*i+219, Y, 9*i+223, Y-13, 9*i+227, Y);
+				stroke(0, 0, 0);
+				strokeWeight(1);
+				line(9*i+219, Y+6, 9*i+227, Y+22);
+				line(9*i+227, Y+6, 9*i+219, Y+22);
+				noStroke();
+			}
+			fill(41, 37, 37);
+			//hinges
+			rect(179, Y+2, 3, 6);
+			rect(179, Y+18, 3, 6);
+			fill(87, 81, 14);
+			//door beams
+			rect(183, Y-4, 5, 31);
+			rect(189, Y-4, 5, 31);
+			rect(195, Y-4, 5, 31);
+			rect(201, Y-4, 5, 31);
+			rect(207, Y-4, 5, 31);
+			rect(213, Y-4, 5, 31);
+			stroke(0, 0, 0);
+			strokeWeight(2);
+			//ropes
+			line(9*i+3, Y+3, 9*i+37, Y+3);
+			line(9*i+3, Y+22, 9*i+37, Y+22);
+			line(9*i+3, Y+3, 9*i+37, Y+22);
+			line(9*i+3, Y+22, 9*i+37, Y+3);
+			noStroke();
+		};
+
+		/*In the four functions that start with draw and have the name of a troop-  move is added to y so that the troops can move up or down the 
+		screen and aproach the other players base.    (type of Troop)Num is used to move troops over so they are not on top of each other and up 
+		for P1 and down for P2.    useSword is used to make the sword in the soldiers hand to move.   r g and b stand for the red greed and blue 
+		of the players color*/
+
+		//Draws all the troops of the soldier type
+		var drawSoldier = function(X, Y, soldierNum, move, useSword, health, r, g, b){
+			//head
+			fill(168, 135, 45);
+			ellipse(X+soldierNum*tOver, Y+move-(soldierNum%2)*tUp-1, 11, 12);
+			//eyes
+			fill(3, 3, 3);
+			ellipse(X-3+soldierNum*tOver, Y-1+move-(soldierNum%2)*tUp-1, 1, 1);
+			ellipse(X+3+soldierNum*tOver, Y-1+move-(soldierNum%2)*tUp-1, 1, 1);
+			//smile
+			arc(X+soldierNum*tOver, Y+2+move-(soldierNum%2)*tUp-1, 4, 3, 0, PI);
+			//body
+			fill(97, 52, 14);
+			ellipse(X+soldierNum*tOver, Y+14+move-(soldierNum%2)*tUp, 7, 19);
+			//right shoulder
+			ellipse(X-5+soldierNum*tOver, Y+11+move-(soldierNum%2)*tUp, 5, 5);
+			//left shoulder
+			ellipse(X+5+soldierNum*tOver, Y+11+move-(soldierNum%2)*tUp, 5, 5);
+			//brown
+			stroke(97, 52, 14);
+			strokeWeight(3);
+			//left arm
+			line(X-7+soldierNum*tOver, Y+13+move-(soldierNum%2)*tUp, X-12+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp);
+			//right arm
+			line(X+7+soldierNum*tOver, Y+14+move-(soldierNum%2)*tUp, X+13+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp);
+			stroke(r, g, b);
+			//left leg
+			line(X-1+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp, X-8+soldierNum*tOver, Y+33+move-(soldierNum%2)*tUp);
+			//right leg
+			line(X+1+soldierNum*tOver, Y+21+move-(soldierNum%2)*15, X+8+soldierNum*tOver, Y+33+move-(soldierNum%2)*15);
+			//sword blade
+			stroke(143, 124, 124);
+			line(X-18+soldierNum*tOver, Y+15+move-(soldierNum%2)*tUp+useSword/3, X-29+soldierNum*tOver-useSword/4, 
+				Y+1+move-(soldierNum%2)*tUp+useSword);
+			stroke(110, 89, 89);
+			//sword hilt
+			line(X-12+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp, X-18+soldierNum*tOver, Y+15+move-(soldierNum%2)*tUp+useSword/3);
+			//sword hilt - other part
+			line(X-22+soldierNum*tOver+useSword/7, Y+17+move-(soldierNum%2)*tUp+useSword/3, X-17+soldierNum*tOver-useSword/7, 
+				Y+10+move-(soldierNum%2)*tUp+useSword/3);
+			//hair
+			strokeWeight(2);
+			stroke(134, 176, 44);
+			line(X-7+soldierNum*tOver, Y-4+move-(soldierNum%2)*tUp, X-3+soldierNum*tOver, Y-7+move-(soldierNum%2)*tUp);
+			line(X+7+soldierNum*tOver, Y-4+move-(soldierNum%2)*tUp, X+3+soldierNum*tOver, Y-7+move-(soldierNum%2)*tUp);
+			line(X-3+soldierNum*tOver, Y-7+move-(soldierNum%2)*tUp, X+1+soldierNum*tOver, Y-7+move-(soldierNum%2)*tUp);
+			noStroke();
+			fill(168, 135, 45);
+			//right hand
+			ellipse(X-13+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp, 5, 5);
+			//left hand
+			ellipse(X+13+soldierNum*tOver, Y+21+move-(soldierNum%2)*tUp, 5, 5);
+			fill(0, 0, 0);
+			//right foot
+			ellipse(X+9+soldierNum*tOver, Y+33+move-(soldierNum%2)*tUp, 8, 5);
+			//left foot
+			ellipse(X-9+soldierNum*tOver, Y+33+move-(soldierNum%2)*tUp, 8, 5);
+			
+			//health bar
+			fill(255, 0, 0);
+			for(var h = 0; h < 10; h++){
+				rect(X+soldierNum*tOver-10+h*2, Y+move-(soldierNum%2)*tUp-12, 2, 2);
+			}
+			
+			fill(0, 255, 0);
+			for(var h = 0; h < ceil(health/5); h++){
+				rect(X+soldierNum*tOver-10+h*2, Y+move-(soldierNum%2)*tUp-12, 2, 2);
+			}
+		};
+
+		//Draws all the troops of the archer type
+		var drawArcher = function(X, Y, archerNum, move, health, r, g, b){
+			//brown
+			stroke(87, 63, 3);
+			noFill();
+			strokeWeight(1);
+			//bow
+			arc(X+14+archerNum*tOver, Y+21+move-(archerNum%2)*tUp, 15, 15, -PI*2/5, PI*3/5);
+			//black
+			stroke(0, 0, 0);
+			//arrows
+			line(X+17+archerNum*tOver, Y+15+move-(archerNum%2)*tUp, X+12+archerNum*tOver, Y+29+move-(archerNum%2)*tUp);
+			line(X+25+archerNum*tOver, Y+25+move-(archerNum%2)*tUp, X+15+archerNum*tOver, Y+22+move-(archerNum%2)*tUp);
+			//bow string
+			line(X-19+archerNum*tOver, Y+5+move-(archerNum%2)*tUp, X-3+archerNum*tOver, Y+13+move-(archerNum%2)*tUp);
+			//arrow in bow
+			line(X-16+archerNum*tOver, Y+1+move-(archerNum%2)*tUp, X-10+archerNum*tOver, Y+8+move-(archerNum%2)*tUp);
+			//black
+			fill(0, 0, 0);
+			//point of arrow
+			triangle(X+24+archerNum*tOver, Y+26+move-(archerNum%2)*tUp, X+25+archerNum*tOver, Y+24+move-(archerNum%2)*tUp, X+27+archerNum*tOver, 
+				Y+26+move-(archerNum%2)*tUp);
+			//player's color
+			stroke(r, g, b);
+			strokeWeight(4);
+			//quiver
+			line(X-10+archerNum*tOver, Y+9+move-(archerNum%2)*tUp, X+6+archerNum*tOver, Y+21+move-(archerNum%2)*tUp);
+			noStroke();
+			//head
+			fill(168, 135, 45);
+			ellipse(X+archerNum*tOver, Y+move-(archerNum%2)*tUp, 11, 12);
+			//eyes
+			fill(3, 3, 3);
+			ellipse(X-3+archerNum*tOver, Y-1+move-(archerNum%2)*tUp, 1, 1);
+			ellipse(X+3+archerNum*tOver, Y-1+move-(archerNum%2)*tUp, 1, 1);
+			//smile
+			arc(X+archerNum*tOver, Y+2+move-(archerNum%2)*tUp, 4, 3, 0, PI);
+			//brown
+			stroke(122, 101, 18);
+			strokeWeight(2);
+			//hair
+			line(X-7+archerNum*tOver, Y-3+move-(archerNum%2)*tUp, X+archerNum*tOver, Y-6+move-(archerNum%2)*tUp);
+			line(X+archerNum*tOver, Y-6+move-(archerNum%2)*tUp, X+7+archerNum*tOver, Y-3+move-(archerNum%2)*tUp);
+			noStroke();
+			//dark green
+			fill(35, 102, 22);
+			//body
+			ellipse(X+archerNum*tOver, Y+14+move-(archerNum%2)*tUp, 7, 19);
+			//right shoulder
+			ellipse(X-5+archerNum*tOver, Y+11+move-(archerNum%2)*tUp, 5, 5);
+			//right hand
+			ellipse(X-13+archerNum*tOver, Y+21+move-(archerNum%2)*tUp, 4, 4);
+			//left shoulder
+			ellipse(X+5+archerNum*tOver, Y+11+move-(archerNum%2)*tUp, 5, 5);
+			//left hand
+			ellipse(X+13+archerNum*tOver, Y+21+move-(archerNum%2)*tUp, 4, 4);
+			//right foot
+			ellipse(X+9+archerNum*tOver, Y+33+move-(archerNum%2)*tUp, 7, 4);
+			//left foot
+			ellipse(X-9+archerNum*tOver, Y+33+move-(archerNum%2)*tUp, 7, 4);
+			//hat
+			triangle(X-4+archerNum*tOver, Y-8+move-(archerNum%2)*tUp, X+archerNum*tOver, Y-12+move-(archerNum%2)*tUp, X+4+archerNum*tOver, 
+				Y-8+move-(archerNum%2)*tUp);
+			rect(X-8+archerNum*tOver, Y+-8+move-(archerNum%2)*tUp, 16, 3);
+			//dark green
+			stroke(35, 102, 22);
+			strokeWeight(3);
+			//left arm
+			line(X-7+archerNum*tOver, Y+13+move-(archerNum%2)*tUp, X-12+archerNum*tOver, Y+21+move-(archerNum%2)*tUp);
+			//right arm
+			line(X+7+archerNum*tOver, Y+14+move-(archerNum%2)*tUp, X+13+archerNum*tOver, Y+21+move-(archerNum%2)*tUp);
+			//left leg
+			line(X-2+archerNum*tOver, Y+22+move-(archerNum%2)*tUp, X-8+archerNum*tOver, Y+33+move-(archerNum%2)*tUp);
+			//right leg
+			line(X+2+archerNum*tOver, Y+22+move-(archerNum%2)*15, X+8+archerNum*tOver, Y+33+move-(archerNum%2)*15);
+			noStroke();
+			
+			//health bar
+			fill(255, 0, 0);
+			for(var h = 0; h < 8; h++){
+				rect(X+archerNum*tOver-8+h*2, Y+move-(archerNum%2)*tUp-12, 2, 2);
+			}
+			
+			fill(0, 255, 0);
+			for(var h = 0; h < ceil(health/5); h++){
+				rect(X+archerNum*tOver-8+h*2, Y+move-(archerNum%2)*tUp-12, 2, 2);
+			}
+		};
+
+		//Draws all the troops of the knight type
+		var drawKnight = function(X, Y, knightNum, move, useSword, health, r, g, b){
+			fill(87, 37, 8);
+			
+			//hourse
+			
+			//legs
+			rect(X+knightNum*tOver-11, Y+move+(knightNum%2)*tUp+2, 4, 17);
+			rect(X+knightNum*tOver+7, Y+move+(knightNum%2)*tUp+2, 4, 17);
+			//head
+			arc(X+knightNum*tOver-25, Y+move+(knightNum%2)*tUp-13, 10, 20, 0, PI+PI*2/9);
+			ellipse(X+knightNum*tOver-24, Y+move+(knightNum%2)*tUp-17, 10, 10);
+			//body
+			ellipse(X+knightNum*tOver+1, Y+move+(knightNum%2)*tUp+-2, 30, 12);
+			strokeWeight(2);
+			stroke(87, 37, 8);
+			//tale
+			line(X+knightNum*tOver+15, Y+move+(knightNum%2)*tUp-4, X+knightNum*tOver+27, Y+move+(knightNum%2)*tUp+11);
+			line(X+knightNum*tOver+15, Y+move+(knightNum%2)*tUp-4, X+knightNum*tOver+21, Y+move+(knightNum%2)*tUp+11);
+			line(X+knightNum*tOver+15, Y+move+(knightNum%2)*tUp-4, X+knightNum*tOver+16, Y+move+(knightNum%2)*tUp+11);
+			//neck
+			strokeWeight(6);
+			line(X+knightNum*tOver-12, Y+move+(knightNum%2)*tUp+-3, X+knightNum*tOver-21, Y+move+(knightNum%2)*tUp-15);
+			strokeWeight(1);
+			stroke(0, 0, 0);
+			fill(0, 21, 255);
+			ellipse(X+knightNum*tOver-26, Y+move+(knightNum%2)*tUp-14, 3, 3);
+			noStroke();
+			
+			//knight
+			
+			//head
+			fill(168, 135, 45);
+			ellipse(X+knightNum*tOver, Y+move+(knightNum%2-2)*tUp, 10, 10);
+			//eyes
+			fill(3, 3, 3);
+			ellipse(X-3+knightNum*tOver, Y-1+move+(knightNum%2-2)*tUp, 1, 1);
+			ellipse(X+3+knightNum*tOver, Y-1+move+(knightNum%2-2)*tUp, 1, 1);
+			//smile
+			arc(X+knightNum*tOver, Y+2+move+(knightNum%2-2)*tUp, 4, 3, 0, PI);
+			//body
+			fill(110, 89, 89);
+			ellipse(X+knightNum*tOver, Y+14+move+(knightNum%2-2)*tUp, 7, 19);
+			//helmet
+			arc(X+knightNum*tOver, Y-3+move+(knightNum%2-2)*tUp, 11, 8, PI, PI*2);
+			triangle(X-2+knightNum*tOver, Y-4+move+(knightNum%2-2)*tUp, X+knightNum*tOver, Y+2+move+(knightNum%2-2)*tUp, X+2+knightNum*tOver, 
+				Y-4+move+(knightNum%2-2)*tUp);
+			rect(X-6+knightNum*tOver, Y-3+move+(knightNum%2-2)*tUp, 1, 5);
+			rect(X+5+knightNum*tOver, Y-3+move+(knightNum%2-2)*tUp, 1, 5);
+			//right shoulder
+			ellipse(X-5+knightNum*tOver, Y+11+move+(knightNum%2-2)*tUp, 6, 6);
+			//right hand
+			ellipse(X-13+knightNum*tOver, Y+21+move+(knightNum%2-2)*tUp, 5, 5);
+			//left shoulder
+			ellipse(X+5+knightNum*tOver, Y+11+move+(knightNum%2-2)*tUp, 6, 6);
+			//left hand
+			ellipse(X+13+knightNum*tOver, Y+21+move+(knightNum%2-2)*tUp, 5, 5);
+			//right foot
+			ellipse(X+3+knightNum*tOver, Y+36+move+(knightNum%2-2)*tUp, 8, 5);
+			//insignia on chest
+			fill(r, g, b);
+			rect(X-2+knightNum*tOver, Y+13+move+(knightNum%2-2)*tUp, 4, 4);
+			//dark gray
+			stroke(110, 89, 89);
+			strokeWeight(3);
+			//left arm (arm on the left not the knights left arm)
+			line(X-8+knightNum*tOver, Y+14+move+(knightNum%2-2)*tUp, X-12+knightNum*tOver, Y-11+move+(knightNum%2)*tUp);
+			//right arm
+			line(X+7+knightNum*tOver, Y+14+move+(knightNum%2-2)*tUp, X+13+knightNum*tOver, Y+21+move+(knightNum%2-2)*tUp);
+			//right leg
+			line(X+2+knightNum*tOver, Y+22+move+(knightNum%2-2)*tUp, X+4+knightNum*tOver, Y+33+move+(knightNum%2-2)*tUp);
+			//sword blade
+			stroke(143, 124, 124);
+			line(X-18+knightNum*tOver, Y+15+move+(knightNum%2-2)*tUp+useSword/3, X-29+knightNum*tOver-useSword/4, Y+4+move+(knightNum%2-2)*tUp+useSword);
+			stroke(110, 89, 89);
+			//sword hilt
+			line(X-12+knightNum*tOver, Y+21+move+(knightNum%2-2)*tUp, X-18+knightNum*tOver, Y+15+move+(knightNum%2-2)*tUp+useSword/3);
+			//sword hilt - other part
+			line(X-22+knightNum*tOver+useSword/7, Y+17+move+(knightNum%2-2)*tUp+useSword/3, X-17+knightNum*tOver-useSword/7, 
+				Y+10+move+(knightNum%2-2)*tUp+useSword/3);
+			noStroke();
+			
+			//health bar
+			fill(255, 0, 0);
+			for(var h = 0; h < 15; h++){
+				rect(X+knightNum*tOver-16+h*2, Y+move-(knightNum%2)*tUp-12+((knightNum+1)%2)*(-1)*30, 2, 2);
+			}
+			
+			fill(0, 255, 0);
+			for(var h = 0; h < ceil(health/5); h++){
+				rect(X+knightNum*tOver-16+h*2, Y+move-(knightNum%2)*tUp-12+((knightNum+1)%2)*(-1)*30, 2, 2);
+			}
+		};
+
+		//Draws all the troops of the catapult type
+		var drawCatapult = function(X, Y, catapultNum, move, health){
+			fill(82, 44, 6);
+			//cup
+			arc(X+catapultNum*tOver+18, Y+move+(catapultNum%2)*tUp+1, 17, -21, 0, PI);
+			//base board
+			rect(X+catapultNum*tOver-12, Y+move+(catapultNum%2)*tUp+19, 35, 6);
+			//wheels
+			ellipse(X+catapultNum*tOver-9, Y+move+(catapultNum%2)*tUp+30, 11, 11);
+			ellipse(X+catapultNum*tOver+19, Y+move+(catapultNum%2)*tUp+30, 11, 11);
+			strokeWeight(6);
+			stroke(82, 44, 6);
+			//hoizantal beam
+			line(X+catapultNum*tOver-4, Y+move+(catapultNum%2)*tUp+20, X+catapultNum*tOver+16, Y+move+(catapultNum%2)*tUp+5);
+			noStroke();
+			fill(0, 0, 0);
+			//axil in the middle of wheel
+			ellipse(X+catapultNum*tOver-9, Y+move+(catapultNum%2)*tUp+30, 4, 4);
+			ellipse(X+catapultNum*tOver+19, Y+move+(catapultNum%2)*tUp+30, 4, 4);
+			
+			//health bar
+			fill(255, 0, 0);
+			for(var h = 0; h < 25; h++){
+				rect(X+catapultNum*tOver-19+h*2, Y+move-(catapultNum%2)*tUp+22+((catapultNum+1)%2)*(-1)*30, 2, 2);
+			}
+			
+			fill(0, 255, 0);
+			for(var h = 0; h < ceil(health/5); h++){
+				rect(X+catapultNum*tOver-19+h*2, Y+move-(catapultNum%2)*tUp+22+((catapultNum+1)%2)*(-1)*30, 2, 2);
+			}
+		};
+
+		/*Hold position of text for the number of resources each player has and the health of each player.*/
+		var writeResorces = function(playerX, playerY, material, amount, over, Yadjust){
+			textSize(14);
+			fill(0, 0, 0);
+			text(material + amount, playerX-origanalX+over, playerY-origanalY+Yadjust);
+		};
+
+		//Hold the position of the text for the cost to buy each house
+		var writeCost = function(playerX, playerY, amountW, amountG, X, Y){
+			textSize(8);
+			fill(0, 0, 0);
+			text("Wood", playerX-origanalX+over*X, playerY-origanalY+down*Y);
+			text(amountW, playerX-origanalX+over*X, playerY-origanalY+down*Y+8);
+			text("Gold", playerX-origanalX+over*X, playerY-origanalY+down*Y+16);
+			text(amountG, playerX-origanalX+over*X, playerY-origanalY+down*Y+24);
+		};
+
+		/*Hold positions of text to desplay the first menue which has the player select the type of house*/
+		var writeMenues = function(message, message2, message3, message4, playerX, playerY, overA, upOdown, X, Y, tSize){
+			textSize(tSize);
+			fill(0, 0, 0);
+			text(message, playerX-origanalX+over*(overA+X)-3, playerY-origanalY+down*upOdown-Y);
+			text(message2, playerX-origanalX+over*(overA+X)-3, playerY-origanalY+down*upOdown-Y+8);
+			text(message3, playerX-origanalX+over*(overA+X)-3, playerY-origanalY+down*upOdown-Y+16);
+			text(message4, playerX-origanalX+over*(overA+X)-3, playerY-origanalY+down*upOdown-Y+24);
+		};
+
+		/*troopDynamics works for all, soldier, archer, knight and catapult and is called inside PlayerDynamics*/
+		var damage1 = 0;
+		var damage2 = 0;
+		var troopDynamics = function(PlayerNum, troopType, troopDown, PcolorR, PcolorG, PcolorB, chargeC, Ptroop, PtroopH, PtroopC, troopMove, useSword, 
+										sPeramiters, numTroopH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH,
+										Oknight, OknightH, OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeG, 
+										Sspeed, XmovementS, damageRate, attackS, Adistance){
+										
+			for(var n = 0; n <= 7+8*(numTroopH-1); n++){
+				
+				if(Ptroop[n] === true){
+					
+					if(troopType === 4){
+						if(85-troopMove[n]<=Adistance || 85+troopMove[n]<=Adistance){
+							if(millis() - timeG[n] >= attackS){
+								if(PlayerNum === 1){
+									damage2 += damageRate;
+								}else if(PlayerNum === 2){
+									damage1 += damageRate;
+								}
+								timeG[n] = millis();
+							}
+							PtroopC[n] = 0;
+						}else if(chargeC === 1){PtroopC[n] = 1;}
+					}
+					
+					if(troopType === 1 || troopType === 2 || troopType === 3){
+						
+						if(85-troopMove[n]+OarcherMove[n]<=Adistance||85-troopMove[n]+OarcherMove[n+1] <=Adistance||85-troopMove[n]+OarcherMove[n-1]<=Adistance
+						||85+troopMove[n]-OarcherMove[n] <=Adistance||85+troopMove[n]-OarcherMove[n+1]<=Adistance||85+troopMove[n]-OarcherMove[n-1] <=Adistance
+						||85-troopMove[n]+OsoldierMove[n]<=Adistance||85-troopMove[n]+OsoldierMove[n+1]<=Adistance||85-troopMove[n]+OsoldierMove[n-1]<=Adistance
+						||85+troopMove[n]-OsoldierMove[n]<=Adistance||85+troopMove[n]-OsoldierMove[n+1]<= Adistance||85+troopMove[n]-OsoldierMove[n-1]<=Adistance
+						||85-troopMove[n]+OknightMove[n]<= Adistance||85-troopMove[n]+OknightMove[n+1]<=Adistance||85-troopMove[n]+OknightMove[n-1]<=Adistance
+						||85+troopMove[n]-OknightMove[n]<= Adistance||85+troopMove[n]-OknightMove[n+1]<=Adistance||85+troopMove[n]-OknightMove[n-1]<=Adistance
+						||85-troopMove[n]+OcatapultMove[n]<= Adistance||85-troopMove[n]+OcatapultMove[n+1]<=Adistance||85-troopMove[n]+OcatapultMove[n-1]<=Adistance
+						||85+troopMove[n]-OcatapultMove[n]<= Adistance||85+troopMove[n]-OcatapultMove[n+1]<=Adistance||85+troopMove[n]-OcatapultMove[n-1]<=Adistance
+						||85-troopMove[n]+OarcherMove[n+8]<=Adistance||85-troopMove[n]+OarcherMove[n+9] <=Adistance||85-troopMove[n]+OarcherMove[n+7]<=Adistance
+						||85+troopMove[n]-OarcherMove[n+8] <=Adistance||85+troopMove[n]-OarcherMove[n+9]<=Adistance||85+troopMove[n]-OarcherMove[n+7] <=Adistance
+						||85-troopMove[n]+OsoldierMove[n+8]<=Adistance||85-troopMove[n]+OsoldierMove[n+9]<=Adistance||85-troopMove[n]+OsoldierMove[n+7]<=Adistance
+						||85+troopMove[n]-OsoldierMove[n+8]<=Adistance||85+troopMove[n]-OsoldierMove[n+9]<=Adistance||85+troopMove[n]-OsoldierMove[n+7]<=Adistance
+						||85-troopMove[n]+OknightMove[n+8]<=Adistance||85-troopMove[n]+OknightMove[n+9]<=Adistance||85-troopMove[n]+OknightMove[n+7]<=Adistance
+						||85+troopMove[n]-OknightMove[n+8]<=Adistance||85+troopMove[n]-OknightMove[n+9]<=Adistance||85+troopMove[n]-OknightMove[n+7]<=Adistance
+						||85-troopMove[n]+OcatapultMove[n+8]<=Adistance||85-troopMove[n]+OcatapultMove[n+9]<=Adistance||85-troopMove[n]+OcatapultMove[n+7]<=Adistance
+						||85+troopMove[n]-OcatapultMove[n+8]<=Adistance||85+troopMove[n]-OcatapultMove[n+9]<=Adistance||85+troopMove[n]-OcatapultMove[n+7]<=Adistance
+						||85-troopMove[n]+OarcherMove[n-8]<=Adistance||85-troopMove[n]+OarcherMove[n-9]<=Adistance||85-troopMove[n]+OarcherMove[n-7]<= Adistance
+						||85+troopMove[n]-OarcherMove[n-8]<=Adistance||85+troopMove[n]-OarcherMove[n-9]<=Adistance||85+troopMove[n]-OarcherMove[n+7]<=Adistance
+						||85-troopMove[n]+OsoldierMove[n-8]<=Adistance||85-troopMove[n]+OsoldierMove[n-9]<=Adistance||85-troopMove[n]+OsoldierMove[n-7]<=Adistance
+						||85+troopMove[n]-OsoldierMove[n-8]<=Adistance||85+troopMove[n]-OsoldierMove[n-9]<=Adistance||85+troopMove[n]-OsoldierMove[n+7]<=Adistance
+						||85-troopMove[n]+OknightMove[n-8]<=Adistance||85-troopMove[n]+OknightMove[n-9]<=Adistance||85-troopMove[n]+OknightMove[n-7]<= Adistance
+						||85+troopMove[n]-OknightMove[n-8]<=Adistance||85+troopMove[n]-OknightMove[n-9]<=Adistance||85+troopMove[n]-OknightMove[n+7]<=Adistance
+						||85-troopMove[n]+OcatapultMove[n-8]<=Adistance||85-troopMove[n]+OcatapultMove[n-9]<=Adistance||85-troopMove[n]+OcatapultMove[n-7]<= Adistance
+						||85+troopMove[n]-OcatapultMove[n-8]<=Adistance||85+troopMove[n]-OcatapultMove[n-9]<=Adistance||85+troopMove[n]-OcatapultMove[n+7]<=Adistance
+						||85-troopMove[n]<=Adistance||85+troopMove[n]<=Adistance){
+						 
+							if(millis() - timeG[n] >= attackS){
+								if(Oknight[n] === true){
+									OknightH[n] -= 15;    
+								}else if(Oknight[n-1] === true){
+									OknightH[n-1] -= 15;
+								}else if(Oknight[n+1] === true){
+									OknightH[n+1] -= 15;
+								}else if(Osoldier[n] === true){
+									OsoldierH[n] -= 15;    
+								}else if(Osoldier[n-1] === true){
+									OsoldierH[n-1] -= 15;
+								}else if(Osoldier[n+1] === true){
+									OsoldierH[n+1] -= 15;
+								}else if(Oknight[n+8] === true){
+									OknightH[n+8] -= 15;
+								}else if(Oknight[n+7] === true){
+									OknightH[n+7] -= 15;
+								}else if(Oknight[n+9] === true){
+									OknightH[n+9] -= 15;
+								}else if(Osoldier[n+8] === true){
+									OsoldierH[n+8] -= 15;    
+								}else if(Osoldier[n+7] === true){
+									OsoldierH[n+7] -= 15;
+								}else if(Osoldier[n+9] === true){
+									OsoldierH[n+9] -= 15;
+								}else if(Oarcher[n-8] === true){
+									OknightH[n-8] -= 15;
+								}else if(Oknight[n-7] === true){
+									OknightH[n-7] -= 15;
+								}else if(Oknight[n-9] === true){
+									OknightH[n-9] -= 15;
+								}else if(Osoldier[n-8] === true){
+									OsoldierH[n-8] -= 15;    
+								}else if(Osoldier[n-7] === true){
+									OsoldierH[n-7] -= 15;
+								}else if(Osoldier[n-9] === true){
+									OsoldierH[n-9] -= 15;
+								}else if(Oarcher[n] === true){
+									OarcherH[n] -= 15;    
+								}else if(Oarcher[n-1] === true){
+									OarcherH[n-1] -= 15;
+								}else if(Oarcher[n+1] === true){
+									OarcherH[n+1] -= 15;
+								}else if(Oarcher[n+8] === true){
+									OarcherH[n+8] -= 15;
+								}else if(Oarcher[n+7] === true){
+									OarcherH[n+7] -= 15;
+								}else if(Oarcher[n+9] === true){
+									OarcherH[n+9] -= 15;
+								}else if(Oarcher[n-8] === true){
+									OarcherH[n+8] -= 15;    
+								}else if(Oarcher[n-7] === true){
+									OarcherH[n-7] -= 15;
+								}else if(Oarcher[n-9] === true){
+									OarcherH[n-9] -= 15;
+								}else if(Ocatapult[n] === true){
+									OcatapultH[n] -= 15;    
+								}else if(Ocatapult[n-1] === true){
+									OcatapultH[n-1] -= 15;
+								}else if(Ocatapult[n+1] === true){
+									OcatapultH[n+1] -= 15;
+								}else if(Ocatapult[n+8] === true){
+									OcatapultH[n+8] -= 15;
+								}else if(Ocatapult[n+7] === true){
+									OcatapultH[n+7] -= 15;
+								}else if(Ocatapult[n+9] === true){
+									OcatapultH[n+9] -= 15;
+								}else if(Ocatapult[n-8] === true){
+									OcatapultH[n+8] -= 15;    
+								}else if(Ocatapult[n-7] === true){
+									OcatapultH[n-7] -= 15;
+								}else if(Ocatapult[n-9] === true){
+									OcatapultH[n-9] -= 15;
+								}else{
+									if(PlayerNum === 1){
+										damage2 += damageRate;
+									}else if(PlayerNum === 2){
+										damage1 += damageRate;
+								}
+							}
+							timeG[n] = millis();
+						}
+						
+						if(troopType === 1 || troopType === 3){
+							if(useSword[n] < 0){
+								 sPeramiters[n] = 0;
+								useSword[n] = 0;
+							}else if(sPeramiters[n] === 0){
+								useSword[n]+=Sspeed[n]*4;
+							}
+								
+							if(useSword[n] > 25){
+								sPeramiters[n] = 1;
+								useSword[n] = 25;
+							}else if(sPeramiters[n] === 1){
+								useSword[n]-=Sspeed[n]*4;   
+							}
+						}
+						
+							PtroopC[n] = 0;
+								
+						}else if(chargeC === 1){PtroopC[n] = 1;}
+					}
+								
+					if(chargeC === 0){PtroopC[n] = 0;
+					}else if(chargeC === -1){PtroopC[n] = -1;}
+							
+					if(PlayerNum === 1 && troopMove[n] < 0){
+						PtroopC[n] = 0;
+						troopMove[n] = 0;
+					}else if(PlayerNum === 2 && troopMove[n] > 0){
+						PtroopC[n] = 0;
+						troopMove[n] = 0;
+					}else if(PtroopC[n] === 1){
+						if(PlayerNum === 1){
+							troopMove[n] += Sspeed[n]*XmovementS;
+						}else if(PlayerNum === 2){
+							troopMove[n] -= Sspeed[n]*XmovementS;
+						}
+					}
+							
+					if(troopMove[n] > 85 || troopMove[n] < -85){
+						PtroopC[n] = 0;
+						if(PlayerNum === 1){
+							troopMove[n] = 85;
+						}else if(PlayerNum === 2){
+							troopMove[n] = -85;
+						}
+					}else if(PtroopC[n] === -1){
+						if(PlayerNum === 1){
+							troopMove[n] -= Sspeed[n]*0.95;
+						}else if(PlayerNum === 2){
+							troopMove[n] += Sspeed[n]*0.95;
+						}
+					}
+						
+					if(PtroopH[n] <= 0){
+						Ptroop[n] = false;
+						PtroopC[n] = 0;
+						troopMove[n] = 0;
+						useSword[n] = 0;
+						sPeramiters = 0;
+						for(var t = 0; t < Ptroop.length-n-1; t++){
+							PtroopH[n+t] = PtroopH[n+t+1];
+							Ptroop[n+t] = Ptroop[n+t+1];
+							PtroopC[n+t] = PtroopC[n+t+1];
+							troopMove[n+t] = troopMove[n+t+1];
+							useSword[n+t] = useSword[n+t+1];
+						}
+						
+						Ptroop[Ptroop.length-1] = false;
+						PtroopC[Ptroop.length-1] = 0;
+						troopMove[Ptroop.length-1] = 0;
+						useSword[Ptroop.length-1] = 0;	
+					}
+						
+					if(troopType === 1){
+						drawSoldier(78-floor(n/8)*300, 153-floor(n/8)*10+troopDown, n, troopMove[n], useSword[n], PtroopH[n], PcolorR, PcolorG, PcolorB);
+					}else if(troopType === 2){
+						   drawArcher(70-floor(n/8)*300, 145-floor(n/8)*10+troopDown, n, troopMove[n], PtroopH[n], PcolorR, PcolorG, PcolorB);
+					}else if(troopType === 3){
+						drawKnight(78-floor(n/8)*300, 153-floor(n/8)*10+troopDown, n, troopMove[n], useSword[n], PtroopH[n], PcolorR, PcolorG, PcolorB);
+					}else if(troopType === 4){
+						drawCatapult(78-floor(n/8)*300, 117-floor(n/8)*10+troopDown, n, troopMove[n], PtroopH[n]);
+					}
+				}
+			}
+		};
+
+		//hold all the funcionallity of both players and is the bulk of the program
+		var PlayerDynamics = function(PlayerNum, baseDown, resorcesDown, wallDown, soldierDown, archerDown, knightDown, catapultDown, PcolorR, PcolorG, 
+			PcolorB, rightKeyCode, leftKeyCode, downKeyCode, upKeyCode, selectKey, boxNum, Phouse, houseSelect, houseTypeNum, menueNum, PbuilderMenue,
+			PbuilderMenuel2, PbuilderMenuel3, PbuilderMenuel4, Pwood, Pgold, Phealth, wWorkers, gWorkers, Pwall, PupgradeD, Psoldier, PsoldierH, 
+			numSoldierH, PsoldierC, soldierMove, sUseSword, sPeramiters, chargeC, PsoldierNum, Parcher, ParcherH, ParcherC, archerMove, ParcherNum, 
+			numArcherH, Pknight, PknightH, knightMove, PknightNum, PknightC, kUseSword, kPeramiters, numKnightH, Pcatapult, PcatapultH, catapultMove, 
+			PcatapultNum, PcatapultC, numCatapultH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, 
+			OknightH, OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, Ohealth, timeA, timeB, timeC, timeD, timeE, timeF, 
+			Sspeed, Aspeed, Kspeed, Cspeed, damage){
+			
+			//This is seperated from the rest of like vars so that the workers var could update
+			workerMenuel3 = ["Worker", "Worker", "", wWorkers, gWorkers, "Half"];
+				
+			soldierMenuel2 = ["Soldiar", "All", troopAction[chargeC+1], "" , "All", "For"];
+			
+			archerMenuel2 = ["Archer", "All", troopAction[chargeC+1], "" , "All", "For"];
+			
+			knightMenuel2 = ["Knight", "All", troopAction[chargeC+1], "" , "All", "For"];
+			
+			catapultMenuel2 = ["Catapult", "All", troopAction[chargeC+1], "" , "All", "For"];
+			
+			if(Pwall){
+				PbuilderMenue[0] = "";
+				PbuilderMenuel2[0] = "";
+				PbuilderMenuel3[0] = "";
+				PbuilderMenuel4[0] = "";
+			}
+			
+			if(PupgradeD === 3){
+				PbuilderMenue[1] = "";
+				PbuilderMenuel2[1] = "";
+				PbuilderMenuel3[1] = "";
+				PbuilderMenuel4[1] = "";
+			}
+			
+			if(Pwall && PupgradeD === 3){
+				PbuilderMenue[0] = "Hint";
+				PbuilderMenuel2[0] = "Sell this Building";
+				PbuilderMenuel3[0] = "because it can not";
+				PbuilderMenuel4[0] = "help you any more.";
+			}
+			
+			MouseX = mouseX;
+			MouseY = mouseY;
+			
+			/*for some reason wasd change the key code to 0 while being pressed and to a different numbers when they are released and the arrow keys work 
+			both when being pressed and after being released.  I think that it is awkward that if you aciendtly touch it for a milliseond to long it will 
+			move two over and not one and so it is only once that the key code is turned to 0 after the key is realeased and then the 
+			key code is riverted to 0*/
+			if(PlayerNum === 1){
+				
+				if(keyIsPressed === false){
+						
+					/*If you use key code 68 which is the d key then the blue select box of player 1 will move over to the right but boxNum is limited so 
+					that the box does not go off the side of the screen*/
+					if(keyCode === rightKeyCode && boxNum >= 0 && boxNum < 17){
+						boxNum++;
+						keyCode = 0;
+					} 
+					
+					//Same as the last if statement but uses the a key to move to the left
+					if(keyCode === leftKeyCode  && boxNum > 0 && boxNum < 18){
+						boxNum--;
+						keyCode = 0;
+					} 
+					
+					//Uses the w letter key to move the P1 blue box down
+					if(keyCode === downKeyCode && boxNum >= 0 && boxNum < 9){
+						boxNum+= 9;
+						keyCode = 0;
+					} 
+					
+					//Uses the s letter key to move the P1 blue box up
+					if(keyCode === upKeyCode && boxNum > 8 && boxNum <= 18){
+						boxNum-= 9;
+						keyCode = 0;
+					}
+				}
+			}else if(PlayerNum === 2){
+				if(mouseIsPressed){
+					for(var x = 0; x <= 9; x++){
+						for(var y = 0; y <= 1; y++){
+							if(MouseX >= over*x-origanalX-10 && MouseX <= over*x+30-origanalX && MouseY >= down*y-origanalY-14+baseDown 
+									&& MouseY <= down*y+32-origanalY+baseDown){
+								if(y === 0){boxNum = x;}
+								else if(y === 1){boxNum = x+1 + y*8;}
+							}
+						}
+					}
+				}
+			}
+				
+			/*Uses the controls and the drawSBox function to actually draw the box for P1 where it is supposed to be.*/ 
+			for(var n = 0; n < 18; n++){
+				if(boxNum === n){
+					drawSBox(0, baseDown, n-floor(n/9)*9, floor(n/9));
+				}
+			}
+				
+			/*Used to buy the P1 house by making P1house[n] = true when you are on the house with blue box and press spacebar and subtracts 
+				the cost from player1 reasouces and selects the house */
+			for(var n = 0; n < 12; n++){
+				if(Phouse[n] === false && Pwood >= 50*n && Pgold >= 50*n && boxNum === n+floor(n/6)*3){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed){
+						Phouse[n] = true;
+						Pwood -= 50*n;
+						Pgold -= 50*n;
+					}
+				}
+				
+				if(boxNum === n+floor(n/6)*3){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+						houseSelect = n;
+						time13 = millis();
+					}
+				}
+			}
+				
+			//Write the text of the reasources in the right position for player1
+			writeResorces(0, resorcesDown, "Wood ", ceil(Pwood), -10, -17);
+			writeResorces(0, resorcesDown, "Gold ", ceil(Pgold), 100, -17);
+			writeResorces(0, resorcesDown, "Health ", Phealth-damage, 200, -17);
+			writeResorces(0, resorcesDown, "Defence ", 10+PupgradeD*5, 300, -17);
+				
+			//Draw the castle like house that I call Mhouse for Main house for player1
+			drawMhouse(0, baseDown, PcolorR, PcolorG, PcolorB);
+				
+			//Draw the house if P1house[n] is true and if it is false write the cost of the house
+			for(var n = 1; n < 12; n++){
+				if(Phouse[n] === true){
+					drawHouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+				}else{writeCost(0, baseDown, 50*n, 50*n, n-floor(n/6)*6, floor(n/6));}
+			}
+				
+			/*Set the production of resources add one resource for every worker per second and you get 8 workers for a worker house */
+			if(millis()-timeA >= collectionSpeed){
+				Pwood += 1.5 * wWorkers;
+				Pgold += 1.5 * gWorkers;
+				timeA = millis();
+			}
+				
+			//This writes all the menues 
+			for(var n = 1; n < 12; n++){
+				if(Phouse[houseSelect] === true && houseSelect === n){ 
+					textSize(8);
+					fill(0, 0, 0);
+					for(var r = 0; r < 6; r++){
+						if(menueNum[n] === 1){
+							writeMenues(houseType[r], "", "", "", 0, baseDown, r-floor(r/3)*3, floor(r/3), 6, 0, 8);
+						}else if(menueNum[n] === 2){
+							writeMenues(workerMenue[r], workerMenuel2[r], workerMenuel3[r], workerMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3), 
+								6, 1, 8);
+						}else if(menueNum[n] === 3){
+							writeMenues(PbuilderMenue[r], PbuilderMenuel2[r], PbuilderMenuel3[r], PbuilderMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3), 
+								6, 1, 8);
+						}else if(menueNum[n] === 4){
+							writeMenues(soldierMenue[r], soldierMenuel2[r], soldierMenuel3[r], soldierMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3), 
+								6, 1, 8); 
+						}else if(menueNum[n] === 5){
+							writeMenues(archerMenue[r], archerMenuel2[r], archerMenuel3[r], archerMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3), 
+								6, 1, 8); 
+						}else if(menueNum[n] === 6){
+							writeMenues(knightMenue[r], knightMenuel2[r], knightMenuel3[r], knightMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3), 
+								6, 1, 8); 
+						}else if(menueNum[n] === 7){
+							writeMenues(catapultMenue[r], catapultMenuel2[r], catapultMenuel3[r], catapultMenuel4[r], 0, baseDown, r-floor(r/3)*3, floor(r/3),
+								6, 1, 8); 
+						}
+					}
+				}
+			}
+				
+			//For each type of house there is a select when the player1 uses the spacebar
+			if(menueNum[houseSelect] === 1&& Phouse[houseSelect] === true){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					if(boxNum === 6){
+						houseTypeNum[houseSelect] = 1;
+						menueNum[houseSelect] = 2;
+						wWorkers += 4; 
+						gWorkers += 4;
+					}else if(boxNum === 7){
+						houseTypeNum[houseSelect] = 2;
+						menueNum[houseSelect] = 3;
+					}else if(boxNum === 8){
+						houseTypeNum[houseSelect] = 3;
+						menueNum[houseSelect] = 4;
+						numSoldierH++;
+						for(var n = 0; n<8; n++){
+							Psoldier.push(false);
+							PsoldierH.push(0);
+							PsoldierC.push(0);
+							soldierMove.push(0);
+							sUseSword.push(0);
+							sPeramiters.push(0);
+							timeC.push(0);
+						}
+					}else if(boxNum === 15){
+						houseTypeNum[houseSelect] = 4;
+						menueNum[houseSelect] = 5;
+						numArcherH++;
+						for(var n = 0; n<8; n++){
+							Parcher.push(false);
+							ParcherH.push(0);
+							ParcherC.push(0);
+							archerMove.push(0);
+							timeD.push(0);
+						}
+					}else if(boxNum === 16){
+						houseTypeNum[houseSelect] = 5;
+						menueNum[houseSelect] = 6;
+						numKnightH++;
+						for(var n = 0; n<8; n++){
+							Pknight.push(false);
+							PknightH.push(0);
+							PknightC.push(0);
+							knightMove.push(0);
+							kUseSword.push(0);
+							kPeramiters.push(0);
+							timeE.push(0);
+						}
+					}else if(boxNum === 17){
+						houseTypeNum[houseSelect] = 6;
+						menueNum[houseSelect] = 7;
+						numCatapultH++;
+						for(var n = 0; n<8; n++){
+							Pcatapult.push(false);
+							PcatapultH.push(0);
+							PcatapultC.push(0);
+							catapultMove.push(0);
+							timeF.push(0);
+						}
+					}
+					time13 = millis();
+				}
+				keyCode = 0;
+			}
+				
+			/*Menue 2 is the worker house menue with the options to add more of a worker of a certain type wile also subtracting a worker of the 
+				opposite type and selling the building*/
+			if(menueNum[houseSelect] === 2 && boxNum === 6 && gWorkers > 0){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					wWorkers += 1;
+					gWorkers -= 1;
+					time13 = millis();
+				}
+			} 
+			if(menueNum[houseSelect] === 2 && boxNum === 7 && wWorkers > 0){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					wWorkers -= 1;
+					gWorkers += 1; 
+					time13 = millis();
+				} 
+			}
+				
+			/*Sell funciton for the worker house differnt from others because it subtracts workers when you sell it.*/
+			if(menueNum[houseSelect] === 2 && boxNum === 17){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					Pwood += (houseSelect * 50)/2;
+					Pgold += (houseSelect * 50)/2;
+					wWorkers -= 4;
+					gWorkers -= 4;
+					Phouse[houseSelect] = false;
+					menueNum[houseSelect] = 1;
+					houseTypeNum[houseSelect] = 0;
+					time13 = millis();
+				}
+			}
+				
+			/*Menue 3 is the Builder menue with the options of building a wall and selling th builder house.  */
+			if(menueNum[houseSelect] === 3 && Pwall === false && boxNum === 6 && Pwood >= 700 && Pgold >= 300){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					Pwall = true;
+					Pwood -= 700;
+					Pgold -= 300;
+					Phealth += 3000;
+					time13 = millis();
+				}
+			}
+			if(menueNum[houseSelect] === 3 && boxNum === 7 && Pwood >= 250 && Pgold >= 300 && PupgradeD < 3){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					Pwood -= 250;
+					Pgold -= 300;
+					PupgradeD += 1;
+					time13 = millis();
+				}
+			}
+				
+			//Sell function for all other house types other than worker
+			if(menueNum[houseSelect] > 2 && boxNum === 17){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					Pwood += (houseSelect * 50)/2;
+					Pgold += (houseSelect * 50)/2;
+					Phouse[houseSelect] = false;
+					menueNum[houseSelect] = 1;
+					houseTypeNum[houseSelect] = 0;
+					time13 = millis();
+				}
+			}
+				
+			/*Menue 4 is the soldiar menue with the options of buying, charging and retreating  troups*/
+			for(var n = 0; n <= 7+8*(numSoldierH-1); n++){
+				if(menueNum[houseSelect] === 4 && boxNum === 6 && Pwood >= 25 && Pgold >= 100 && Psoldier[n] === false){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+						Pwood -= 25;
+						Pgold -= 100;
+						Psoldier[n] = true;
+						PsoldierH[n] = 50;
+						chargeC[n] = 0;
+						PsoldierNum++;
+						keyCode = 0;
+						time13 = millis();
+					}
+				}
+			}
+			   
+			if(menueNum[houseSelect] >= 4 && boxNum === 7){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					if(chargeC === 0 || chargeC === -1){
+						chargeC++;
+					}
+					time13 = millis();
+				}
+			}
+				
+			if(menueNum[houseSelect] >= 4 && boxNum === 16){
+				if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+					if(chargeC === 0 || chargeC === 1){
+						chargeC--;
+					}
+					time13 = millis();
+				}
+			}
+				
+			/*Menue 5 is the archer menue with the options of buying charging and reatreating troops.*/
+			for(var n = 0; n <= 7+8*(numArcherH-1); n++){
+				if(menueNum[houseSelect] === 5 && boxNum === 6 && Pwood >= 100 && Pgold >= 25 && Parcher[n] === false){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+						Pwood -= 100;
+						Pgold -= 25;
+						Parcher[n] = true;
+						ParcherH[n] = 40;
+						ParcherNum++;
+						keyCode = 0;
+						time13 = millis();
+					}
+				}
+			}
+			
+			/*Menue 6 is the knight menue with the options of buying, chargins and reatreating troops.*/
+			for(var n = 0; n <= 7+8*(numKnightH-1); n++){
+				if(menueNum[houseSelect] === 6 && boxNum === 6 && Pwood >= 100 && Pgold >= 150 && Pknight[n] === false){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+						Pwood -= 100;
+						Pgold -= 150;
+						Pknight[n] = true;
+						PknightH[n] = 75;
+						PknightNum++;
+						keyCode = 0;
+						time13 = millis();
+					}
+				}
+			}
+			
+			/*Menue 7 is the catapult menue with the options of buying, chargins and reatreating troops.*/
+			for(var n = 0; n <= 7+8*(numCatapultH-1); n++){
+				if(menueNum[houseSelect] === 7 && boxNum === 6 && Pwood >= 225 && Pgold >= 150 && Pcatapult[n] === false){
+					if(PlayerNum === 1&&keyCode === selectKey&&keyIsPressed === false||PlayerNum === 2&&mouseIsPressed&&millis()-time13 >= 100){
+						Pwood -= 225;
+						Pgold -= 150;
+						Pcatapult[n] = true;
+						PcatapultH[n] = 125;
+						PcatapultNum++;
+						keyCode = 0;
+						time13 = millis();
+					}
+				}
+			}
+				
+			//Draws the accesories to a house that distinguishes the differnt types of houses.
+			for(var n = 1; n < 12; n++){
+				if(houseTypeNum[n] === 1 && Phouse[n] === true){
+				drawWhouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+				}
+				
+				if(houseTypeNum[n] === 2 && Phouse[n] === true){
+				drawBhouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+			   }
+				
+				if(houseTypeNum[n] === 3 && Phouse[n] === true){
+				drawShouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+			   }
+				
+				if(houseTypeNum[n] === 4 && Phouse[n] === true){
+				drawAhouse(0, baseDown, n-floor(n/6)*6, floor(n/6), PcolorR, PcolorG, PcolorB);
+				}
+				
+				if(houseTypeNum[n] === 5 && Phouse[n] === true){
+				drawKhouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+				}
+				
+				if(houseTypeNum[n] === 6 && Phouse[n] === true){
+				drawChouse(0, baseDown, n-floor(n/6)*6, floor(n/6));
+				}
+			}
+				
+			//Draw Fence if false and wall if ture
+			if(PlayerNum === 1){
+				if(Pwall === false) {
+					drawFence(115+wallDown);
+				}else{
+					drawWall(115+wallDown);
+				}
+			}
+				
+			//Allows so that the base atacks troops attacking it 10 damage per second
+			for(var n = 0; n <= 7+8*(OnumSoldierH+OnumArcherH+OnumKnightH-1); n++){
+				if(Osoldier[n] === true && millis()-timeB >= attackSpeed && OsoldierMove[n] > 70 || 
+						OsoldierMove[n] < -70 && Osoldier[n] === true && millis()-timeB >= attackSpeed){
+					OsoldierH[n] -= 10+5*PupgradeD;
+					timeB = millis();
+				}else if(Oknight[n] === true && millis()-timeB >= attackSpeed && OknightMove[n] > 70 || 
+							OknightMove[n] < -70 && Oknight[n] === true && millis()-timeB >= attackSpeed){
+					OknightH[n] -= 10+5*PupgradeD;
+					timeB = millis();
+				}else if(Oarcher[n] === true && millis()-timeB >= attackSpeed && OarcherMove[n] > 59 || 
+							OarcherMove[n] < -59 && Oarcher[n] === true && millis()-timeB >= attackSpeed){
+					OarcherH[n] -= 10+5*PupgradeD;
+					timeB = millis();
+				}
+			}
+				
+			/*Calls the funcitons that holds all the functionallity of each troop.  Arguement in order of PlayerNum, troopType, troopDown, PcolorR, 
+			PcolorG, PcolorB, chargeC, Ptroop, PtroopH, PtroopC, troopMove, useSword, sPeramiters, numTroopH, Osoldier, OsoldierH, OsoldierMove, 
+			OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, 
+			OnumCatapultH, damage, timeG, Sspeed, XmovementS, damageRate, attackS, Adistance*/
+			
+			if(PlayerNum === 1){
+				troopDynamics(PlayerNum, 4, catapultDown, PcolorR, PcolorG, PcolorB, chargeC, Pcatapult, PcatapultH, PcatapultC, catapultMove, 0, 0, 
+					numCatapultH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, 
+					OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeF, Sspeed, 0.5, 25, 5000, 40);
+				
+				troopDynamics(PlayerNum, 3, knightDown, PcolorR, PcolorG, PcolorB, chargeC, Pknight, PknightH, PknightC, knightMove, kUseSword, kPeramiters, 
+					numKnightH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, 
+					OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeE, Sspeed, 1.5, 10, 1000, 10);
+				
+				troopDynamics(PlayerNum, 2, archerDown, PcolorR, PcolorG, PcolorB, chargeC, Parcher, ParcherH, ParcherC, archerMove, 0, 0, numArcherH, 
+					Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, OnumKnightH, 
+					Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeD, Sspeed, 0.95, 8, 2000, 25);
+			
+				troopDynamics(PlayerNum, 1, soldierDown, PcolorR, PcolorG, PcolorB, chargeC, Psoldier, PsoldierH, PsoldierC, soldierMove, sUseSword, 
+					sPeramiters, numSoldierH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, 
+					OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeC, Sspeed, 1, 5, 1000, 10);
+			}else if(PlayerNum === 2){
+				troopDynamics(PlayerNum, 1, soldierDown, PcolorR, PcolorG, PcolorB, chargeC, Psoldier, PsoldierH, PsoldierC, soldierMove, sUseSword, 
+					sPeramiters, numSoldierH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, 
+					OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeC, Sspeed, 1, 5, 1000, 10);
+				
+				troopDynamics(PlayerNum, 2, archerDown, PcolorR, PcolorG, PcolorB, chargeC, Parcher, ParcherH, ParcherC, archerMove, sUseSword, sPeramiters,
+					numArcherH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, 
+					OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeD, Sspeed, 0.95, 8, 2000, 25);
+				
+				troopDynamics(PlayerNum, 3, knightDown, PcolorR, PcolorG, PcolorB, chargeC, Pknight, PknightH, PknightC, knightMove, kUseSword, 
+					kPeramiters, numKnightH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, 
+					OknightH, OknightMove, OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeE, Sspeed, 1.5, 10, 1000, 10);
+				 
+				troopDynamics(PlayerNum, 4, catapultDown, PcolorR, PcolorG, PcolorB, chargeC, Pcatapult, PcatapultH, PcatapultC, catapultMove, 0, 0, 
+					numCatapultH, Osoldier, OsoldierH, OsoldierMove, OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, 
+					OnumKnightH, Ocatapult, OcatapultH, OcatapultMove, OnumCatapultH, damage, timeF, Sspeed, 0.5, 15, 5000, 40);
+			}
+			
+			if(PlayerNum === 2){
+				if(Pwall === false) {
+					drawFence(115+wallDown);
+				}else{
+					drawWall(115+wallDown);
+				}
+			}
+			
+			//updates the variables outside the function
+			if(PlayerNum === 1){
+				boxNum1 = boxNum;
+				P1house = Phouse;
+				houseSelect1 = houseSelect;
+				houseTypeNum1 = houseTypeNum;
+				menueNum1 = menueNum;
+				P1builderMenue = PbuilderMenue;
+				P1builderMenuel2 = PbuilderMenuel2;
+				P1builderMenuel3 = PbuilderMenuel3;
+				P1builderMenuel4 = PbuilderMenuel4;
+				P1wood = Pwood;
+				P1gold = Pgold;
+				P1health = Phealth;
+				P1wWorkers = wWorkers;
+				P1gWorkers = gWorkers;
+				P1wall = Pwall;
+				P1upgradeD = PupgradeD;
+				P1soldier = Psoldier;
+				P1soldierH = PsoldierH;
+				numSoldierH1 = numSoldierH;
+				P1soldierC = PsoldierC;
+				soldierMove1 = soldierMove;
+				sUseSword1 = sUseSword; 
+				sPeramiters1 = sPeramiters;
+				P1chargeC = chargeC;
+				P1soldierNum = PsoldierNum;
+				P1archer = Parcher;
+				P1archerH = ParcherH;
+				P1archerC = ParcherC;
+				archerMove1 = archerMove;
+				P1archerNum = ParcherNum;
+				numArcherH1 = numArcherH;
+				P1knight = Pknight;
+				P1knightH = PknightH;
+				P1knightC = PknightC;
+				knightMove1 = knightMove;
+				P1knightNum = PknightNum;
+				numKnightH1 = numKnightH;
+				P1catapult = Pcatapult;
+				P1catapultH = PcatapultH;
+				P1catapultC = PcatapultC;
+				catapultMove1 = catapultMove;
+				P1catapultNum = PcatapultNum;
+				numCatapultH1 = numCatapultH;
+				P2soldier = Osoldier;
+				P2soldierH = OsoldierH;
+				soldierMove2 = OsoldierMove;
+				P2health = Ohealth;
+				P2archer = Oarcher;
+				P2archerH = OarcherH;
+				archerMove2 = OarcherMove;
+				numArcherH2 = OnumArcherH;
+				P2knight = Oknight;
+				P2knightH = OknightH;
+				knightMove2 = OknightMove;
+				numKnightH2 = OnumKnightH;
+				P2catapult = Ocatapult;
+				P2catapultH = OcatapultH;
+				catapultMove2 = OcatapultMove;
+				numCatapultH2 = OnumCatapultH;
+				time1 = timeA;
+				time2 = timeB;
+				time3 = timeC;
+				time4 = timeD;
+				time5 = timeE;
+				time6 = timeF;
+			}else if(PlayerNum === 2){
+				boxNum2 = boxNum;
+				P2house = Phouse;
+				houseSelect2 = houseSelect;
+				houseTypeNum2 = houseTypeNum;
+				menueNum2 = menueNum;
+				P2builderMenue = PbuilderMenue;
+				P2builderMenuel2 = PbuilderMenuel2;
+				P2builderMenuel3 = PbuilderMenuel3;
+				P2builderMenuel4 = PbuilderMenuel4;
+				P2wood = Pwood;
+				P2gold = Pgold;
+				P2health = Phealth;
+				P2wWorkers = wWorkers;
+				P2gWorkers = gWorkers;
+				P2wall = Pwall;
+				P2upgradeD = PupgradeD;
+				P2soldier = Psoldier;
+				P2soldierH = PsoldierH;
+				numSoldierH2 = numSoldierH;
+				P2soldierC = PsoldierC;
+				soldierMove2 = soldierMove;
+				sUseSword2 = sUseSword; 
+				sPeramiters2 = sPeramiters;
+				P2chargeC = chargeC;
+				P2soldierNum = PsoldierNum;
+				P2archer = Parcher;
+				P2archerH = ParcherH;
+				P2archerC = ParcherC;
+				archerMove2 = archerMove;
+				P2archerNum = ParcherNum;
+				numArcherH2 = numArcherH;
+				P2knight = Pknight;
+				P2knightH = PknightH;
+				P2knightC = PknightC;
+				knightMove2 = knightMove;
+				P2knightNum = PknightNum;
+				numKnightH2 = numKnightH;
+				P2catapult = Pcatapult;
+				P2catapultH = PcatapultH;
+				P2catapultC = PcatapultC;
+				catapultMove2 = catapultMove;
+				P2catapultNum = PcatapultNum;
+				numCatapultH2 = numCatapultH;
+				P1soldier = Osoldier;
+				P1soldierH = OsoldierH;
+				soldierMove1 = OsoldierMove;
+				P1health = Ohealth;
+				P1archer = Oarcher;
+				P1archerH = OarcherH;
+				archerMove1 = OarcherMove;
+				numArcherH1 = OnumArcherH;
+				P1knight = Oknight;
+				P1knightH = OknightH;
+				knightMove1 = OknightMove;
+				numKnightH1 = OnumKnightH;
+				P1catapult = Ocatapult;
+				P1catapultH = OcatapultH;
+				catapultMove1 = OcatapultMove;
+				numCatapultH1 = OnumCatapultH;
+				time7 = timeA;
+				time8 = timeB;
+				time9 = timeC;
+				time10 = timeD;
+				time11 = timeE;
+				time12 = timeF;
+			}
+		};
+
+		/*The draw function and the first time that anything is actually put on the screen without it it would just be a blank screen with some cool 
+		variables and functions already defined.*/
+		draw = function() {
+			if(P1health-damage1 > 0 && P2health-damage2 > 0){
+				background(29, 145, 46);
+				
+				//Archers that visually represent the amount of attack damage the base has
+				if(P1upgradeD === 0){
+					drawBaseDefence(90, 103, 0, 225, 0, 0, 255);
+					drawBaseDefence(90, 103, 1, 225, 0, 0, 255);
+				}else if(P1upgradeD === 1){
+					drawBaseDefence(90, 103, 0, 132, 0, 0, 255);
+					drawBaseDefence(90, 103, 1, 132, 0, 0, 255);
+					drawBaseDefence(90, 103, 2, 132, 0, 0, 255);
+				}else if(P1upgradeD === 2){
+					drawBaseDefence(45, 103, 0, 89, 0, 0, 255);
+					drawBaseDefence(45, 103, 1, 89, 0, 0, 255);
+					drawBaseDefence(45, 103, 2, 89, 0, 0, 255);
+					drawBaseDefence(45, 103, 3, 89, 0, 0, 255);
+				}else if(P1upgradeD === 3){
+					drawBaseDefence(45, 103, 0, 45, 0, 0, 255);
+					drawBaseDefence(45, 103, 1, 45, 0, 0, 255);
+					drawBaseDefence(90, 103, 2, 45, 0, 0, 255);
+					drawBaseDefence(134, 103, 3, 45, 0, 0, 255);
+					drawBaseDefence(134, 103, 4, 45, 0, 0, 255);
+				}
+				
+				/*PlayerNum, baseDown, resorcesDown, wallDown, soldierDown, archerDown, knightDown, catapultDown, PcolorR, PcolorG, PcolorB, rightKeyCode, 
+				leftKeyCode, downKeyCode, upKeyCode, selectKey, boxNum, Phouse, houseSelect, houseTypeNum, menueNum, Pwood, Pgold, Phealth, wWorkers, 
+				gWorkers, Pwall, PupgradeD, Psoldier, PsoldierH, numSoldierH, PsoldierC, soldierMove, sUseSword, sPeramiters, chargeC, PsoldierNum, 
+				Parcher, ParcherH, ParcherC, archerMove, ParcherNum, numArcherH, Pknight, PknightH, knightMove, PknightNum, PknightC, kUseSword, 
+				kPeramiters, numKnightH, Pcatapult, PcatapultH, catapultMove, PcatapultNum, PcatapultC, numCatapultH, Osoldier, OsoldierH, OsoldierMove, 
+				OnumSoldierH, Oarcher, OarcherH, OarcherMove, OnumArcherH, Oknight, OknightH, OknightMove, OnumKnightH, Ocatapult, OcatapultH, 
+				OcatapultMove, OnumCatapultH, Ohealth, timeA, timeB, timeC, timeD, timeE, Sspeed, Aspeed, Kspeed, Cspeed, damage*/
+				
+				PlayerDynamics(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 68, 65, 83, 87, 32, boxNum1, P1house, houseSelect1, houseTypeNum1, menueNum1, P1builderMenue,
+					P1builderMenuel2, P1builderMenuel3, P1builderMenuel4, P1wood, P1gold, P1health, P1wWorkers, P1gWorkers, P1wall, P1upgradeD, P1soldier, 
+					P1soldierH, numSoldierH1, P1soldierC, soldierMove1, sUseSword1, sPeramiters1, P1chargeC, P1soldierNum, P1archer, P1archerH, P1archerC, 
+					archerMove1, P1archerNum, numArcherH1, P1knight, P1knightH, knightMove1, P1knightNum, P1knightC, kUseSword1, kPeramiters1, numKnightH1, 
+					P1catapult, P1catapultH, catapultMove1, P1catapultNum, P1catapultC, numCatapultH1, P2soldier, P2soldierH, soldierMove2, numSoldierH2, 
+					P2archer, P2archerH, archerMove2, numArcherH2, P2knight, P2knightH, knightMove2, numKnightH2, P2catapult, P2catapultH, catapultMove2, 
+					numCatapultH2, P2health, time1, time2, time3, time4, time5, time6, Sspeed1, Aspeed1, Kspeed1, Cspeed1, damage1);
+				
+				PlayerDynamics(2, 273, 380, 147, 80, 92, 78, 110, 255, 0, 0, 39, 37, 40, 38, 10, boxNum2, P2house, houseSelect2, houseTypeNum2, menueNum2,
+					P2builderMenue, P2builderMenuel2, P2builderMenuel3, P2builderMenuel4, P2wood, P2gold, P2health, P2wWorkers, P2gWorkers, P2wall, 
+					P2upgradeD, P2soldier, P2soldierH, numSoldierH2, P2soldierC, soldierMove2, sUseSword2, sPeramiters2, P2chargeC, P2soldierNum, P2archer, 
+					P2archerH, P2archerC, archerMove2, P2archerNum, numArcherH2, P2knight, P2knightH, knightMove2, P2knightNum, P1knightC, kUseSword2, 
+					kPeramiters2, numKnightH2, P2catapult, P2catapultH, catapultMove2, P2catapultNum, P2catapultC, numCatapultH2, P1soldier, P1soldierH, 
+					soldierMove1, numSoldierH1, P1archer, P1archerH, archerMove1, numArcherH1, P1knight, P1knightH, knightMove1, numKnightH1, P1catapult, 
+					P1catapultH, catapultMove1, numCatapultH1, P1health, time7, time8, time9, time10, time11, time12, Sspeed2, Aspeed2, Kspeed2, Cspeed2, 
+					damage2);
+					
+				if(P2upgradeD === 0){
+					drawBaseDefence(90, 255, 0, 225, 255, 0, 0);
+					drawBaseDefence(90, 255, 1, 225, 255, 0, 0);
+				}else if(P2upgradeD === 1){
+					drawBaseDefence(90, 255, 0, 132, 255, 0, 0);
+					drawBaseDefence(90, 255, 1, 132, 255, 0, 0);
+					drawBaseDefence(90, 255, 2, 132, 255, 0, 0);
+				}else if(P2upgradeD === 2){
+					drawBaseDefence(45, 255, 0, 89, 255, 0, 0);
+					drawBaseDefence(45, 255, 1, 89, 255, 0, 0);
+					drawBaseDefence(45, 255, 2, 89, 255, 0, 0);
+					drawBaseDefence(45, 255, 3, 89, 255, 0, 0);
+				}else if(P2upgradeD === 3){
+					drawBaseDefence(45, 255, 0, 45, 255, 0, 0);
+					drawBaseDefence(45, 255, 1, 45, 255, 0, 0);
+					drawBaseDefence(90, 255, 2, 45, 255, 0, 0);
+					drawBaseDefence(134, 255, 3, 45, 255, 0, 0);
+					drawBaseDefence(134, 255, 4, 45, 255, 0, 0);
+				}
+
+				if(keyCode !== 0){
+					keyCode = 0;
+				}
+			}else if(P1health-damage1 <= 0){
+				background(255, 0, 0);
+				fill(0, 0, 0);
+				textSize(50);
+				text("Player 2 wins!!" ,  50, 200);
+			}else if(P2health-damage2 <= 0){
+				background(0, 0, 255);
+				fill(0, 0, 0);
+				textSize(50);
+				text("Player 1 wins!!" ,  50, 200);
+			}
+		};
+		</script>
+	</body> 
+</html>
+
