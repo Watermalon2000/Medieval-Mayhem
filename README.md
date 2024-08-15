@@ -1,6 +1,10 @@
 # Medieval-Mayhem
 This is a simple real time strategy game developed using Processing JavaScript that can be played on one device. 
-Players need to collect resources and eventually build troops to attack the opponents base and destroy it.
+Players need to collect resources and eventually build troops to attack the opponents base and destroy it.  
+
+# Requirements
+This runs on any modern browser and the files needed for it to undersand Processing JavaScript are included.
+This only really works if you are using a computer and will probably be unplayable on a phone.
 
 # Controls
 Player 1 - This is the player at the top of the map:
